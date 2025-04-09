@@ -8,3 +8,4 @@ coverage
 .env.local
 .env.development.local
 .env.test.local
+.specstory

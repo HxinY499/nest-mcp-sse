@@ -4,7 +4,7 @@
 
 **此模块没有过度封装**🥳
 
-只做了 MCP Server 实例管理和 SSE Transport 管理，没有对原生 MCP Server 的方法做任何封装，尽可能不增加学习成本。
+只做了 MCP Server 实例管理和 SSE Transport 管理，没有对官方 sdk 的原生 MCP Server 的方法做任何封装，尽可能不增加学习成本。
 
 ## 功能特点
 
@@ -64,7 +64,7 @@ export class AppModule {}
 
 ### 2. 操作 McpServer
 
-创建 MCP Server 之后，你可以通过`getServer`方法获取到原生 MCP Server 实例，这个实例没有任何封装，完全是原生的。
+创建 MCP Server 之后，你可以通过`getServer`方法获取到官方 sdk 的原生 MCP Server 实例，这个实例没有任何封装，完全是原生的。
 
 比如，你可以注册工具
 
