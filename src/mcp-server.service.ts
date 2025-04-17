@@ -1,12 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 import { McpServerConfig } from "./interface";
 
 @Injectable()
 export class McpServerService {
   private readonly servers: Map<string, McpServer> = new Map();
+  private readonly logger = new Logger(McpServerService.name);
 
   constructor() {}
 
@@ -18,6 +19,7 @@ export class McpServerService {
 
     const server = new McpServer(serverInfo, serverOptions);
     this.servers.set(serverId, server);
+    this.logger.log(`MCP Server '${serverId}' registered`);
     return server;
   }
 

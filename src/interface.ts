@@ -12,4 +12,5 @@ export interface ModuleRegisterOptions {
   controllerBaseUrl: string;
   sseEndpoint?: string;
   messagesEndpoint?: string;
+  log?: boolean;
 }

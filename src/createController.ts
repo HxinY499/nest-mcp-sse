@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Inject,
+  Logger,
   Param,
   Post,
   Query,
@@ -18,10 +19,12 @@ import { McpTransportService } from "./mcp-transport.service";
 export function createController(
   controllerBaseUrl: string,
   sseEndpoint = "sse",
-  messagesEndpoint = "messages"
+  messagesEndpoint = "messages",
+  log = true
 ) {
   @Controller(controllerBaseUrl)
   class McpController {
+    readonly logger = new Logger(McpController.name);
     constructor(
       @Inject(McpTransportService)
       public readonly transportService: McpTransportService,
@@ -34,7 +37,11 @@ export function createController(
       const targetServerId = serverId;
 
       if (!this.mcpServerService.hasServer(targetServerId)) {
-        res.status(404).send(`MCP Server '${targetServerId}' not found`);
+        const errorMessage = `MCP Server '${targetServerId}' not found`;
+        if (log) {
+          this.logger.error(errorMessage);
+        }
+        res.status(404).send(errorMessage);
         return;
       }
       const transport = new SSEServerTransport(messagesEndpoint, res);
@@ -43,9 +50,19 @@ export function createController(
       this.transportService.registerTransport(targetServerId, transport);
 
       res.on("close", () => {
+        if (log) {
+          this.logger.log(
+            `MCP Server '${targetServerId}' disconnected, sessionId: ${sessionId}`
+          );
+        }
         this.transportService.removeTransport(targetServerId, sessionId);
       });
 
+      if (log) {
+        this.logger.log(
+          `MCP Server '${targetServerId}' connected, sessionId: ${sessionId}`
+        );
+      }
       await this.mcpServerService.connect(targetServerId, transport);
     }
 
@@ -60,12 +77,20 @@ export function createController(
       const targetServerId = serverId;
 
       if (!this.mcpServerService.hasServer(targetServerId)) {
-        res.status(404).send(`MCP Server '${targetServerId}' not found`);
+        const errorMessage = `MCP Server '${targetServerId}' not found`;
+        if (log) {
+          this.logger.error(errorMessage);
+        }
+        res.status(404).send(errorMessage);
         return;
       }
 
       if (!sessionId) {
-        res.status(400).send("Missing sessionId query parameter");
+        const errorMessage = "Missing sessionId query parameter";
+        if (log) {
+          this.logger.error(errorMessage);
+        }
+        res.status(400).send(errorMessage);
         return;
       }
 
@@ -74,14 +99,19 @@ export function createController(
         sessionId
       );
       if (!transport) {
-        res
-          .status(404)
-          .send(
-            `No active transport found for serverID: ${targetServerId}, sessionID: ${sessionId}`
-          );
+        const errorMessage = `No active transport found for serverID: ${targetServerId}, sessionID: ${sessionId}`;
+        if (log) {
+          this.logger.error(errorMessage);
+        }
+        res.status(404).send(errorMessage);
         return;
       }
 
+      if (log) {
+        this.logger.log(
+          `MCP Server '${targetServerId}' received message, sessionId: ${sessionId}`
+        );
+      }
       await transport.handlePostMessage(req, res, body);
     }
   }

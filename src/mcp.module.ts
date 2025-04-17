@@ -1,4 +1,4 @@
-import { DynamicModule, Module } from "@nestjs/common";
+import { DynamicModule, Logger, Module } from "@nestjs/common";
 
 import { createController } from "./createController";
 import { McpServerConfig, ModuleRegisterOptions } from "./interface";
@@ -14,13 +14,16 @@ function createMcpServerServiceInstance(mcpServerConfigs?: McpServerConfig[]) {
 }
 let globalMcpServerServiceInstance;
 let globalMcpTransportServiceInstance;
-@Module({})
+@Module({
+  providers: [Logger],
+})
 export class McpModule {
   static register({
     mcpServerConfigs,
     controllerBaseUrl,
     sseEndpoint,
     messagesEndpoint,
+    log,
   }: ModuleRegisterOptions): DynamicModule {
     const controller = createController(
       controllerBaseUrl,
